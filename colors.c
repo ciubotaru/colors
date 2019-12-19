@@ -1,3 +1,12 @@
+/**
+ * File name: colors.c
+ * Project name: colors, a two-player strategy game on a 2d grid written in C.
+ * URL: https://github.com/ciubotaru/colors
+ * Author: Vitalie Ciubotaru <vitalie at ciubotaru dot tokyo>
+ * License: General Public License, version 3 or later
+ * Copyright 2019
+**/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>

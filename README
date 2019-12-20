@@ -1,0 +1,14 @@
+colors
+======
+
+Version 0.0.1 (December 2019)
+
+colors is an abstract game on a 2D grid for two players.
+
+Installation
+------------
+
+To compile colors from source code:
+
+cc -o colors colors.c
+

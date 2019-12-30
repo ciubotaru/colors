@@ -77,9 +77,30 @@ int coords[4][2];
 
 void init_grid() {
 	int i, j;
+	unsigned char tmp[ROWS][COLS] = {0};
 	for (i = 0; i < ROWS; i++) {
 		for (j = 0; j < COLS;j++) {
-			grid[i][j] = rand() % COLORS;
+			tmp[i][j] = rand() % COLORS;
+			grid[i][j] = tmp[i][j];
+		}
+	}
+	for (i = 1; i < ROWS - 1; i++) {
+		for (j = 1; j < COLS; j++) {
+			if (rand() % 2) continue;
+			switch(rand() % 4) {
+				case 0:
+					grid[i][j] = tmp[i - 1][j];
+					break;
+				case 1:
+					grid[i][j] = tmp[i][j + 1];
+					break;
+				case 2:
+					grid[i][j] = tmp[i + 1][j];
+					break;
+				case 3:
+					grid[i][j] = tmp[i][j - 1];
+					break;
+			}
 		}
 	}
 }

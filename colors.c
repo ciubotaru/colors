@@ -190,6 +190,7 @@ int check_touch() {
 }
 
 void print_result(WINDOW *local_win) {
+	char *title = "GAME OVER";
 	wclear(local_win);
 	wcolor_set(local_win, 8, NULL);
 	unsigned char grid1[ROWS][COLS] = {0};
@@ -205,7 +206,9 @@ void print_result(WINDOW *local_win) {
 			if (grid2[i][j]) counter2++;
 		}
 	}
-	wprintw(local_win, "Game over\n");
+	i = (80 - strlen(title)) / 2;
+	wprintw(local_win, "%*s\n", i, title);
+//	wprintw(local_win, "Game over\n");
 	wprintw(local_win, "Player 1: %i cells\n", counter1);
 	wprintw(local_win, "Player 2: %i cells\n", counter2);
 	if (counter1 > counter2) wprintw(local_win, "Player 1 wins!\n");
@@ -256,6 +259,9 @@ void draw_map(WINDOW *local_win) {
 void print_help(WINDOW *local_win) {
 	wclear(local_win);
 	wcolor_set(local_win, 8, NULL);
+	char *title = "HELP";
+	int i = (80 - strlen(title)) / 2;
+	wprintw(local_win, "%*s\n", i, title);
 	wprintw(local_win, "Game instructions\n [to be added]\n");
 	wprintw(local_win, "\n\nPress any key\n");
 }

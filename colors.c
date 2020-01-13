@@ -214,7 +214,7 @@ void print_result(WINDOW *local_win) {
 	if (counter1 > counter2) wprintw(local_win, "Player 1 wins!\n");
 	else if (counter1 < counter2) wprintw(local_win, "Player 2 wins!\n");
 	else wprintw(local_win, "A draw.\n");
-	wprintw(local_win, "\n\nPress any key\n");
+	wprintw(local_win, "\n\nPress Enter to play again\n");
 }
 
 int get_input(WINDOW * window) {
@@ -323,7 +323,14 @@ int main() {
 			case RESULTS:
 				print_result(local_win);
 				ch = get_input(local_win);
+				if (ch == '\n') {
+					init_grid();
+					current_player = 0;
+					screen = MAIN;
+					break;
+				}
 				screen = GAMEOVER;
+				break;
 			case GAMEOVER:
 				goto shutdown;
 				break;

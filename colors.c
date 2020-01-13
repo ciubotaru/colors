@@ -296,7 +296,7 @@ int main() {
 				unsigned char result;
 				if (ch >= 0 + '0' && ch < '0' + COLORS) {
 					ch -= '0';
-					if (ch == (current_player ? grid[ROWS - 1][COLS - 1] : grid[0][0])) {
+					if (ch == grid[ROWS - 1][COLS - 1] || ch == grid[0][0]) {
 						//print smth
 						break;
 					}

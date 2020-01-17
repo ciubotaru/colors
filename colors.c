@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <ctype.h>
 #include <time.h>
 #include <ncurses.h>
@@ -18,6 +19,7 @@
 #define COLORS 8
 
 enum screens {
+	CHOOSE,
 	MAIN,
 	HELP,
 	RESULTS,
@@ -25,6 +27,8 @@ enum screens {
 };
 
 unsigned char current_player = 0;
+
+unsigned char ai_player = 2;
 
 void switch_player() {
 	current_player ^= 1;
@@ -177,16 +181,67 @@ int check_touch() {
 	int i, j, k;
 	for (i = 0; i < ROWS; i++) {
 		for (j = 0; j < COLS; j++) {
-			if (grid1[i][j]) {
-				get_neighbours(i, j);
-				for (k = 0; k < 4; k++) {
-					if (coords[k][0] < 0 || coords[k][0] > ROWS - 1 || coords[k][1] < 0 || coords[k][1] > COLS - 1) continue;
-					if (grid2[coords[k][0]][coords[k][1]]) return RESULTS;
-				}
+			if (!grid1[i][j]) continue;
+			get_neighbours(i, j);
+			for (k = 0; k < 4; k++) {
+				if (coords[k][0] < 0 || coords[k][0] > ROWS - 1 || coords[k][1] < 0 || coords[k][1] > COLS - 1) continue;
+				if (grid2[coords[k][0]][coords[k][1]]) return RESULTS;
 			}
 		}
 	}
 	return MAIN;
+}
+
+unsigned char ai_pick_color() {
+	unsigned char output;
+	/* pick a color at random */
+/*
+	do {
+		output = rand() % COLORS;
+	} while (output == grid[0][0] || output == grid[ROWS - 1][COLS - 1]);
+	return output;
+*/
+	/* pick the color with the highest number of adjacent cells */
+	unsigned char grid1[ROWS][COLS] = {0};
+	traverse(ROWS - 1, COLS - 1, &grid1);
+	unsigned char grid2[ROWS][COLS] = {0};
+	int i, j, k;
+	unsigned char colors[COLORS] = {0};
+	for (i = 0; i < ROWS; i++) {
+		for (j = 0; j < COLS; j++) {
+			// get neighbors
+			// check if not in first nor in second grid
+			// get color
+			//increment counter
+			// mark second grid
+			if (!grid1[i][j]) continue;
+			get_neighbours(i, j);
+			for (k = 0; k < 4; k++) {
+				if (coords[k][0] < 0 || coords[k][0] > ROWS - 1 || coords[k][1] < 0 || coords[k][1] > COLS - 1) continue;
+				if (grid1[coords[k][0]][coords[k][1]]) continue;
+				if (grid2[coords[k][0]][coords[k][1]]) continue;
+				colors[grid[coords[k][0]][coords[k][1]]]++;
+				grid2[coords[k][0]][coords[k][1]] = 1;
+			}
+		}
+	}
+
+	output = grid[ROWS - 1][COLS - 1];
+	for (i = 0; i < COLORS; i++) {
+		if (colors[i] > colors[output] && i != grid[0][0]) output = i;
+	}
+	return output;
+}
+
+void choose_mode(WINDOW *local_win) {
+	char *title = "COLORS";
+	wclear(local_win);
+	int i;
+	i = (80 - strlen(title)) / 2;
+	wprintw(local_win, "%*s\n\n", i, title);
+	wprintw(local_win, " [1] Human vs. Computer\n");
+	wprintw(local_win, " [2] Human vs. Human\n");
+	wprintw(local_win, " [q] Quit\n");
 }
 
 void print_result(WINDOW *local_win) {
@@ -283,17 +338,29 @@ int main() {
 	noecho();
 	curs_set(FALSE);
 	WINDOW *local_win = newwin(25, 80, 0, 0);
-
-//	print_grid();
-	int new_color;
-	int screen = MAIN;
+	int ch;
+	int screen = CHOOSE;
 	while (1) {
 		switch (screen) {
+			case CHOOSE:
+				choose_mode(local_win);
+				ch = get_input(local_win);
+				if (ch == 1 + '0' || ch == 2 + '0') {
+					ai_player = ch - '0';
+					screen = MAIN;
+				}
+				else if (ch == 'q') screen = GAMEOVER;
+				break;
 			case MAIN:
-				
+				if (current_player == ai_player) {
+					unsigned char new_color = ai_pick_color();
+					repaint(ROWS - 1, COLS - 1, new_color);
+					screen = check_touch();
+					switch_player();
+					break;
+				}
 				draw_map(local_win);
-				int ch = get_input(local_win);
-				unsigned char result;
+				ch = get_input(local_win);
 				if (ch >= 0 + '0' && ch < '0' + COLORS) {
 					ch -= '0';
 					if (ch == grid[ROWS - 1][COLS - 1] || ch == grid[0][0]) {
